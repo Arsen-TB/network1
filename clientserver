@@ -1,0 +1,44 @@
+import socket
+import threading
+
+def handle_tcp(client_socket):
+    while True:
+        data = client_socket.recv(1024)
+        if not data:
+            break
+        for client in tcp_clients:
+            if client != client_socket:
+                client.send(data)
+
+def handle_udp():
+    while True:
+        data, _ = udp_socket.recvfrom(1024)
+        for client in udp_clients:
+            udp_socket.sendto(data, client)
+
+def accept_tcp_connections():
+    while True:
+        client, _ = tcp_socket.accept()
+        tcp_clients.append(client)
+        client_handler = threading.Thread(target=handle_tcp, args=(client,))
+        client_handler.start()
+
+tcp_port = 12345
+udp_port = 12346
+tcp_clients = []
+udp_clients = []
+
+tcp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+tcp_socket.bind(('0.0.0.0', tcp_port))
+udp_socket.bind(('0.0.0.0', udp_port)
+
+tcp_socket.listen(5)
+print(f"TCP Server listening on port {tcp_port}")
+
+udp_thread = threading.Thread(target=handle_udp)
+udp_thread.start()
+
+tcp_accept_thread = threading.Thread(target=accept_tcp_connections)
+tcp_accept_thread.start()
